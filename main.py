@@ -22,6 +22,7 @@ blogs = Blog.query.all()
 for blog in blogs:
     bn = blog.name
     bb = blog.body
+    bi = blog.id
 
 @app.route("/")
 def index():
@@ -35,9 +36,10 @@ def view_blog():
     blogs = Blog.query.all()
     for blog in blogs:
         if name == blog.name:
-            bmsg = blog.body     
-            return render_template("view_blog.html",bname=name,bbody=bmsg)
-
+            bmsg = blog.body
+            id = blog.id     
+#            return render_template("view_blog.html",bname=name,bbody=bmsg)
+            return redirect("/valid?id={0}".format(blog.id),bname=name,bbody=bmsg)
 
 @app.route("/blog")
 def view_main():
@@ -59,6 +61,7 @@ def new_post():
             db.session.add(new_blog)
             db.session.commit()
             return render_template("view_blog.html",bname=name,bbody=body)
+#            return redirect("/valid?name={0}".format(uname))
         else: 
             return render_template("add.html", bname=name, err_name=err_name, bbody=body, err_body=err_body)
     
