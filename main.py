@@ -22,7 +22,6 @@ blogs = Blog.query.all()
 for blog in blogs:
     bn = blog.name
     bb = blog.body
-    bi = blog.id
 
 @app.route("/")
 def index():
@@ -31,15 +30,11 @@ def index():
     return render_template("main.html",title="Build a Blog!",blogs=blogs,bn=blog.name,bb=blog.body)
 
 @app.route("/view_blog")
-def view_blog():  
-    name = request.args.get("name")
-    blogs = Blog.query.all()
-    for blog in blogs:
-        if name == blog.name:
-            bmsg = blog.body
-            id = blog.id     
-#            return render_template("view_blog.html",bname=name,bbody=bmsg)
-            return redirect("/valid?id={0}".format(blog.id),bname=name,bbody=bmsg)
+def view_blog(): 
+    
+    bid = request.args.get("id")
+    blog = Blog.query.get(bid)
+    return render_template("view_blog.html",bname=blog.name,bbody=blog.body)
 
 @app.route("/blog")
 def view_main():
@@ -60,12 +55,15 @@ def new_post():
             new_blog = Blog(name, body)
             db.session.add(new_blog)
             db.session.commit()
-            return render_template("view_blog.html",bname=name,bbody=body)
-#            return redirect("/valid?name={0}".format(uname))
+            blog = Blog.query.order_by('-id').first()
+            bid = blog.id
+            bname = blog.name
+            bbody = blog.body
+            return redirect("/view_blog?id={0}".format(blog.id))
         else: 
             return render_template("add.html", bname=name, err_name=err_name, bbody=body, err_body=err_body)
     
     return render_template("add.html")
 
 if __name__ == "__main__": 
-    app.run()        
+    app.run()       
