@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Login</h1>
+<style>
+    .error {color:red;}
+</style>
+<form action="/login" method="post">
+    <table>
+        <tr>
+            <td><label for="uname">Username</label></td>
+            <td>
+                <input name="uname" type="text" value="{{ uname }}">
+                <span class="error">{{err_usr}}</span>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="password">Password</label></td>
+            <td>
+                <input name="password" type="password">
+                <span class="error">{{err_pwd}}</span>
+            </td>
+        </tr>
+    </table>
+    <input type="submit" value="Submit">
+    <p>Don't have an account?<a href="/signup">Create one!</a></p>
+</form>
+{% endblock %}

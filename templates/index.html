@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<head>
+    <h1 style="font-family: sans-serif">blog users!</h1>
+</head>   
+<body> 
+<form action="/">
+    {% for usr in users %}
+        <!-- <ul style="list-style:none;margin:0 0 20px 0;padding:0;"> -->
+        <ul>    
+            <li>
+                <a href="/blog?user={{usr.username}}">{{usr.username}}</a>
+            </li>    
+        </ul>  
+    {% endfor %}
+</form>
+</body>
+{% endblock %}
