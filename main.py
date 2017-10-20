@@ -148,13 +148,14 @@ def view_all_blog():
 def view_blog(): 
     
     bid = request.args.get("id")
-    blogs = Blog.query.filter_by(owner_id=bid).all()
-    for blog in blogs:
-        bid = blog.id
-        bname = blog.name
-        bbody = blog.body
+    blog = Blog.query.get(bid)
+#    blogs = Blog.query.filter_by(owner_id=bid).all()
+    # for blog in blogs:
+    #     bid = blog.id
+    #     bname = blog.name
+    #     bbody = blog.body
 
-    usr = User.query.get(bid)    
+    usr = User.query.get(blog.owner_id)    
 
     return render_template("singleUser.html",bname=blog.name,bbody=blog.body,uname=usr.username)
 
@@ -219,11 +220,11 @@ def register():
 
 @app.route('/logout')
 def logout():
-    # if user in session:
-    #     del session['user']
-    #     return redirect('/allpost')
-    # else:
-    return redirect('/allpost')
+    if 'user' in session:
+        del session['user']
+        return redirect('/allpost')
+    else:
+        return redirect('/allpost')
 
 if __name__ == "__main__": 
     app.debug = True
