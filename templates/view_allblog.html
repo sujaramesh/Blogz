@@ -2,11 +2,14 @@
 
 {% block content %}
 <h1 style="font-family: sans-serif">blog posts!</h1>
-    <div>
-        <h3><a href="/view_blog?id={{bid}}">{{bname}}</a></h2>
-    </div>
-    <div>    
-        {{bbody}}
-    </div> <br>
-    <div style="font-size:x-small">written by <a href="/blog?user={{uname}}">{{uname}}</div> 
+
+    {% for blog in blogs %}        
+        <div>
+            <h3><a href="/view_blog?id={{blog.id}}">{{blog.name}}</a></h2>
+        </div>
+        <div>    
+            {{blog.body}}
+        </div> <br>
+        <div style="font-size:x-small">written by <a href="/blog?user={{blog.owner.username}}">{{blog.owner.username}}</div>
+    {% endfor %} 
 {% endblock %}

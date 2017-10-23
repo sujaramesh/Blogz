@@ -32,13 +32,19 @@ class User(db.Model):
         self.username = username
         self.password = password
 
+@app.before_request
+def require_login():
+    allowed_routes = ['index','all_post','login','register']
+    if request.endpoint not in allowed_routes and 'user' not in session:
+        return redirect('/login')
+
 @app.route("/")
 def index():
 
     users = User.query.all()
     for usr in users:
         uname = usr.username
-        print("uname:",uname)
+#        print("uname:",uname)
 
     return render_template("index.html",uname=usr.username,users=users)
 
@@ -58,7 +64,7 @@ def newpost():
                 err_name = "we need both a title and a body"
             if err_name == "" :
                 usr = User.query.filter_by(username=session['user']).first()
-                print("usr",usr)
+#                print("usr",usr)
                 
                 new_blog = Blog(name,body,usr)
                 db.session.add(new_blog)
@@ -75,53 +81,23 @@ def newpost():
     else:
         return redirect("/login")
         
-#    return redirect("/login")
-
-#     allowed_routes = ['newpost']
-#     if request.endpoint in allowed_routes:  
-        
-#         redirect('/login') 
-# #    if request.endpoint in allowed_routes:
- #       return "<h1>hiiiiii<h1>"
-    
-#        redirect('/login')
-#    if user and user.password == password:
-#    else:
-# def new_post():
-#     redirect("/login")
-#     render_template("add.html")
-#        render_template("add.html")
-#     err_name=""
-#     if request.method == "POST":
-#         name = request.form['blogtitle']
-#         body = request.form['blogbody']
-#         if len(name) == 0 or len(body) == 0:
-#             err_name = "we need both a title and a body"
-#         if err_name == "" :
-#             new_blog = Blog(name, body)
-#             db.session.add(new_blog)
-#             db.session.commit()
-#             blog = Blog.query.order_by('-id').first()
-#             bid = blog.id
-#             bname = blog.name
-#             bbody = blog.body
-#             return redirect("/view_blog?id={0}".format(blog.id))
-#         else: 
-#             return render_template("add.html", bname=name, err_name=err_name, bbody=body)
-    
-#     return render_template("add.html")
-
-# #    return render_template("add.html", bname=name, err_name=err_name, bbody=body, err_body=err_body)
 
 @app.route("/allpost")
 def all_post():
     blogs = Blog.query.all()
     for blog in blogs:
+        bid = blog.id
         boid = blog.owner_id
+#        print("blog owner_id",boid)
         bname = blog.name
         bbody = blog.body
-        usr = User.query.filter_by(id=boid).first()    
-    return render_template("view_allblog.html",bid=boid,bname=bname,bbody=bbody,uname=usr.username)
+        # users = User.query.all()
+        # for user in users:
+        usr = User.query.get(boid)
+        name = usr.username 
+ #       print("user name", name)   
+    #    render_template("view_allblog.html",blogs=blogs,boid=blog.owner_id,bname=blog.name,bbody=blog.body,name=usr.username)
+    return render_template("view_allblog.html",blogs=blogs,boid=blog.id,bname=blog.name,bbody=blog.body,name=usr.username)
 
 @app.route("/blog")
 def view_all_blog():
@@ -132,7 +108,7 @@ def view_all_blog():
     existing_blog = Blog.query.filter_by(owner_id=usr.id).first()
     if existing_blog:
         blogs = Blog.query.filter_by(owner_id=usr.id).all()
-        print ("blogs:", blogs)
+ #       print ("blogs:", blogs)
         for blog in blogs:
             bid = blog.id
             bname = blog.name
@@ -140,9 +116,11 @@ def view_all_blog():
 
  #   return redirect("/view_blog?id={0}".format(bid))    
     
-        return render_template("view_allblog.html",bid=bid,bname=bname,bbody=bbody,uname=blg_usr)
+        return render_template("view_allblog.html",blogs=blogs,boid=blog.owner_id,bname=blog.name,bbody=blog.body,name=usr.username)
     else:
         return render_template("view_empty.html")
+#         return "Its empty"   
+
 
 @app.route("/view_blog")
 def view_blog(): 
@@ -177,7 +155,8 @@ def login():
         if not user or len(usrname) == 0:
             err_usr = "Invalid username"
 #            flash("Invalid username","error")
-        if len(password) == 0 or password != user.password :
+#        if len(password) == 0 or password != user.password :
+        if user and password != user.password :
             err_pwd = "Invalid password"
 #            flash("Invalid password","error")
         if err_usr=="" and err_pwd=="":
@@ -194,10 +173,20 @@ def login():
 @app.route('/signup', methods=['POST', 'GET'])
 def register():
     err_vefy=""
+    err_pwd=""
+    err_nme=""
     if request.method == 'POST':
         usrname = request.form['uname']
         password = request.form['password']
         verify = request.form['verify']
+
+        if len(usrname) >= 1 and len(usrname) < 3:
+            err_nme = "Username has to be atleast 3 characters"   
+            return render_template('signup.html',uname=usrname,err_nme=err_nme) 
+
+        if len(password) >= 1 and len(password) < 3:
+            err_pwd = "Password has to be atleast 3 characters"   
+            return render_template('signup.html',uname=usrname,err_pwd=err_pwd) 
 
         if password != verify:
             err_vefy = "Passwords don't match"

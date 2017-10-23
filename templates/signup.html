@@ -12,12 +12,14 @@
             <td><label for="uname">Username</label></td>
             <td>
                 <input name="uname" type="text" value="{{ uname }}">
+                <span class="error">{{err_nme}}</span>
             </td>
         </tr>
         <tr>
             <td><label for="password">Password</label></td>
             <td>
                 <input name="password" type="password">
+                <span class="error">{{err_pwd}}</span>
             </td>
         </tr>
         <tr>
