@@ -8,7 +8,6 @@ app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 app.secret_key = "super secret key"
  
- 
 class Blog(db.Model):
   
     id = db.Column(db.Integer, primary_key=True)
@@ -40,12 +39,9 @@ def require_login():
 
 @app.route("/")
 def index():
-
     users = User.query.all()
     for usr in users:
         uname = usr.username
-#        print("uname:",uname)
-
     return render_template("index.html",uname=usr.username,users=users)
 
 @app.route("/home")
@@ -54,7 +50,6 @@ def home():
 
 @app.route("/newpost",methods=["POST","GET"])
 def newpost():
-
     if 'user' in session:
         err_name=""
         if request.method == "POST":
@@ -64,8 +59,6 @@ def newpost():
                 err_name = "we need both a title and a body"
             if err_name == "" :
                 usr = User.query.filter_by(username=session['user']).first()
-#                print("usr",usr)
-                
                 new_blog = Blog(name,body,usr)
                 db.session.add(new_blog)
                 db.session.commit()
@@ -88,15 +81,10 @@ def all_post():
     for blog in blogs:
         bid = blog.id
         boid = blog.owner_id
-#        print("blog owner_id",boid)
         bname = blog.name
         bbody = blog.body
-        # users = User.query.all()
-        # for user in users:
         usr = User.query.get(boid)
         name = usr.username 
- #       print("user name", name)   
-    #    render_template("view_allblog.html",blogs=blogs,boid=blog.owner_id,bname=blog.name,bbody=blog.body,name=usr.username)
     return render_template("view_allblog.html",blogs=blogs,boid=blog.id,bname=blog.name,bbody=blog.body,name=usr.username)
 
 @app.route("/blog")
@@ -108,41 +96,20 @@ def view_all_blog():
     existing_blog = Blog.query.filter_by(owner_id=usr.id).first()
     if existing_blog:
         blogs = Blog.query.filter_by(owner_id=usr.id).all()
- #       print ("blogs:", blogs)
         for blog in blogs:
             bid = blog.id
             bname = blog.name
             bbody = blog.body
-
- #   return redirect("/view_blog?id={0}".format(bid))    
-    
         return render_template("view_allblog.html",blogs=blogs,boid=blog.owner_id,bname=blog.name,bbody=blog.body,name=usr.username)
     else:
         return render_template("view_empty.html")
-#         return "Its empty"   
-
 
 @app.route("/view_blog")
 def view_blog(): 
-    
     bid = request.args.get("id")
     blog = Blog.query.get(bid)
-#    blogs = Blog.query.filter_by(owner_id=bid).all()
-    # for blog in blogs:
-    #     bid = blog.id
-    #     bname = blog.name
-    #     bbody = blog.body
-
     usr = User.query.get(blog.owner_id)    
-
     return render_template("singleUser.html",bname=blog.name,bbody=blog.body,uname=usr.username)
-
-# @app.before_request
-# def require_login():
-#     allowed_routes = ['login', 'signup']
-#     if request.endpoint not in allowed_routes and 'user' not in session:
-#         return redirect('/login')
-
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
@@ -154,17 +121,12 @@ def login():
         user = User.query.filter_by(username=usrname).first()
         if not user or len(usrname) == 0:
             err_usr = "Invalid username"
-#            flash("Invalid username","error")
-#        if len(password) == 0 or password != user.password :
         if user and password != user.password :
             err_pwd = "Invalid password"
-#            flash("Invalid password","error")
         if err_usr=="" and err_pwd=="":
             session['user'] = usrname
-#            return(session['user'])
             flash("Logged in")
             return redirect("/newpost")
-
         else:
             return render_template('login.html',uname=usrname,err_usr=err_usr,err_pwd=err_pwd)
     return render_template('login.html')
@@ -192,8 +154,6 @@ def register():
             err_vefy = "Passwords don't match"
             return render_template('signup.html',uname=usrname,err_vefy=err_vefy) 
 
-        # TODO - validate user's data
-
         existing_user = User.query.filter_by(username=usrname).first()
         if not existing_user:
             new_user = User(usrname, password)
@@ -202,9 +162,7 @@ def register():
             session['user'] = usrname
             return redirect('/')
         else:
-            # TODO - user better response messaging
             return "<h1>Duplicate user</h1>"
-
     return render_template('signup.html')
 
 @app.route('/logout')
